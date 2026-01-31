@@ -1,0 +1,67 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: personal-finance
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/finance
+    username: postgres
+    password: test123
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    cache:
+      type: redis
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: personal-finance
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      properties:
+        spring.json.add.type.headers: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  jwt:
+    issuer: personal-finance
+    secret: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET_32+_CHARS"
+    access-token-minutes: 1440
+    refresh-token-days: 7
+
+logging:
+  level:
+    org.hibernate.SQL: info
+
