@@ -1,7 +1,9 @@
 package com.finance.personel_finance.report.service;
 
 import com.finance.personel_finance.report.dto.CategoryTotalResponse;
+import com.finance.personel_finance.report.dto.DailyTrendPoint;
 import com.finance.personel_finance.report.dto.MonthlyReportResponse;
+import com.finance.personel_finance.report.dto.MonthlyTrendsResponse;
 import com.finance.personel_finance.transaction.model.enums.TransactionType;
 import com.finance.personel_finance.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -43,16 +48,19 @@ public class ReportService {
         LocalDate to = yearMonth.atEndOfMonth();
 
         BigDecimal income = repo.sumAmountByType(userId, TransactionType.INCOME, from, to);
+        if (income == null) income = BigDecimal.ZERO;
+
         BigDecimal expense = repo.sumAmountByType(userId, TransactionType.EXPENSE, from, to);
+        if (expense == null) expense = BigDecimal.ZERO;
+
         BigDecimal net = income.subtract(expense);
 
-        // Ne işe yarar? (category -> total) listesi döner
         List<CategoryTotalResponse> expenseByCategory =
                 repo.totalsByCategory(userId, TransactionType.EXPENSE, from, to)
                         .stream()
                         .map(row -> new CategoryTotalResponse(
-                                (String) row[0],
-                                (BigDecimal) row[1]
+                                String.valueOf(row[0]),
+                                row[1] == null ? BigDecimal.ZERO : (BigDecimal) row[1]
                         ))
                         .toList();
 
@@ -81,5 +89,40 @@ public class ReportService {
     public byte[] monthlyPdf(Long userId, int year, int month) {
         MonthlyReportResponse summary = monthly(userId, year, month);
         return pdfService.generateMonthlyPdf(userId, year, month, summary);
+    }
+
+    public MonthlyTrendsResponse trends(Long userId, int year, int month) {
+        LocalDate from = LocalDate.of(year, month, 1);
+        LocalDate to = from.withDayOfMonth(from.lengthOfMonth());
+
+        // day -> [income, expense]
+        Map<Integer, BigDecimal> incomeByDay = new HashMap<>();
+        Map<Integer, BigDecimal> expenseByDay = new HashMap<>();
+
+        List<Object[]> rows = repo.dailyTotalsByType(userId, from, to);
+
+        for (Object[] r : rows) {
+            LocalDate date = (LocalDate) r[0];
+            TransactionType type = (TransactionType) r[1];
+            BigDecimal sum = (BigDecimal) r[2];
+
+            int day = date.getDayOfMonth();
+            if (type == TransactionType.INCOME) {
+                incomeByDay.put(day, sum);
+            } else if (type == TransactionType.EXPENSE) {
+                expenseByDay.put(day, sum);
+            }
+        }
+
+        List<DailyTrendPoint> points = new ArrayList<>();
+        int daysInMonth = from.lengthOfMonth();
+
+        for (int d = 1; d <= daysInMonth; d++) {
+            BigDecimal income = incomeByDay.getOrDefault(d, BigDecimal.ZERO);
+            BigDecimal expense = expenseByDay.getOrDefault(d, BigDecimal.ZERO);
+            points.add(new DailyTrendPoint(d, income, expense));
+        }
+
+        return new MonthlyTrendsResponse(year, month, points);
     }
 }

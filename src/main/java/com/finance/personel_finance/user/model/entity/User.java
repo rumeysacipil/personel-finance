@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -24,4 +26,21 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(name = "first_name", nullable = false, length = 60)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false, length = 60)
+    private String lastName;
+
+    @Column(name = "profile_image_url", length = 500)
+    private String profileImageUrl;
+
+    // ✅ Refresh token DB'de HASH olarak saklanır (raw saklama)
+    @Column(name = "refresh_token_hash", length = 64)
+    private String refreshTokenHash;
+
+    @Column(name = "refresh_token_expires_at")
+    private Instant refreshTokenExpiresAt;
+
 }

@@ -23,7 +23,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         WHERE t.userId = :userId
           AND t.transactionDate BETWEEN :from AND :to
           AND (:type IS NULL OR t.type = :type)
-          AND (:category IS NULL OR t.category = :category)
+          AND (
+                :category IS NULL OR :category = ''
+                OR LOWER(t.category) LIKE LOWER(CONCAT('%', :category, '%'))
+              )
     """)
     Page<Transaction> search(
             @Param("userId") Long userId,
@@ -34,18 +37,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Pageable pageable
     );
 
+
     /**
      * Ne işe yarar?
      * - Rapor için: belirli type'a göre toplam amount döndürür (INCOME/EXPENSE)
      * - COALESCE ile null yerine 0 döner
      */
     @Query("""
-        SELECT COALESCE(SUM(t.amount), 0)
-        FROM Transaction t
-        WHERE t.userId = :userId
-          AND t.type = :type
-          AND t.transactionDate BETWEEN :from AND :to
-    """)
+                SELECT COALESCE(SUM(t.amount), 0)
+                FROM Transaction t
+                WHERE t.userId = :userId
+                  AND t.type = :type
+                  AND t.transactionDate BETWEEN :from AND :to
+            """)
     BigDecimal sumAmountByType(
             @Param("userId") Long userId,
             @Param("type") TransactionType type,
@@ -59,14 +63,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
      * - type parametreli: en sağlam JPQL kullanım
      */
     @Query("""
-        SELECT t.category, COALESCE(SUM(t.amount), 0)
-        FROM Transaction t
-        WHERE t.userId = :userId
-          AND t.type = :type
-          AND t.transactionDate BETWEEN :from AND :to
-        GROUP BY t.category
-        ORDER BY SUM(t.amount) DESC
-    """)
+                SELECT t.category, COALESCE(SUM(t.amount), 0)
+                FROM Transaction t
+                WHERE t.userId = :userId
+                  AND t.type = :type
+                  AND t.transactionDate BETWEEN :from AND :to
+                GROUP BY t.category
+                ORDER BY SUM(t.amount) DESC
+            """)
     List<Object[]> totalsByCategory(
             @Param("userId") Long userId,
             @Param("type") TransactionType type,
@@ -82,5 +86,34 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Long userId,
             LocalDate from,
             LocalDate to
+    );
+
+    @Query("""
+                SELECT t.transactionDate, t.type, COALESCE(SUM(t.amount), 0)
+                FROM Transaction t
+                WHERE t.userId = :userId
+                  AND t.transactionDate BETWEEN :from AND :to
+                GROUP BY t.transactionDate, t.type
+                ORDER BY t.transactionDate ASC
+            """)
+    List<Object[]> dailyTotalsByType(
+            @Param("userId") Long userId,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
+    );
+
+    @Query("""
+                SELECT LOWER(TRIM(t.category)), COALESCE(SUM(t.amount), 0)
+                FROM Transaction t
+                WHERE t.userId = :userId
+                  AND t.type = :type
+                  AND t.transactionDate BETWEEN :from AND :to
+                GROUP BY LOWER(TRIM(t.category))
+            """)
+    List<Object[]> spentByCategory(
+            @Param("userId") Long userId,
+            @Param("type") TransactionType type,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
     );
 }

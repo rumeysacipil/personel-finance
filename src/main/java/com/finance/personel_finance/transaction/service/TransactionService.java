@@ -64,9 +64,15 @@ public class TransactionService {
                 Sort.by(Sort.Direction.DESC, "transactionDate")
         );
 
+        // ✅ BURASI: boş veya sadece space ise null yap
+        if (category != null && category.isBlank()) {
+            category = null;
+        }
+
         return repo.search(userId, from, to, type, category, pageable)
                 .map(this::toResponse);
     }
+
 
     /**
      * Ne işe yarar?
