@@ -1,5 +1,6 @@
 package com.finance.personel_finance.user.service;
 
+import com.finance.personel_finance.common.exception.UnauthorizedException;
 import com.finance.personel_finance.user.dto.UserResponse;
 import com.finance.personel_finance.user.model.entity.User;
 import com.finance.personel_finance.user.repository.UserRepository;
@@ -150,7 +151,7 @@ public class UserService {
 
     public User getByRefreshTokenHashOrThrow(String hash) {
         return userRepository.findByRefreshTokenHash(hash)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
     }
 
 }

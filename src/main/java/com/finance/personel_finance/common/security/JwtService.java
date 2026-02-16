@@ -21,7 +21,7 @@ public class JwtService {
     private final String issuer;
     private final long accessTokenMs;
 
-    // ✅ refresh süresi (gün)
+    // refresh süresi (gün)
     private final long refreshTokenMs;
 
     private final SecureRandom secureRandom = new SecureRandom();
@@ -50,7 +50,7 @@ public class JwtService {
                 .compact();
     }
 
-    // ✅ Opaque refresh token üret (raw)
+    // Opaque refresh token üret (raw)
     public String generateRefreshToken() {
         byte[] bytes = new byte[64];
         secureRandom.nextBytes(bytes);
@@ -58,12 +58,12 @@ public class JwtService {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    // ✅ refresh token expiry
+    //  refresh token expiry
     public Instant refreshExpiryFromNow() {
         return Instant.ofEpochMilli(System.currentTimeMillis() + refreshTokenMs);
     }
 
-    // ✅ DB’ye hash sakla
+    // DB’ye hash sakla
     public String sha256(String raw) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

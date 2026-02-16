@@ -60,7 +60,7 @@ app:
   jwt:
     issuer: personal-finance
     # dev'de env yoksa da çalışsın (fallback)
-    secret: ${APP_JWT_SECRET:CHANGE_ME_DEV_SECRET_32+_CHARS}
+    secret: ${APP_JWT_SECRET:dev_secret_key_which_is_more_than_32_characters_long_12345}
     access-token-minutes: 30
     refresh-token-days: 7
 

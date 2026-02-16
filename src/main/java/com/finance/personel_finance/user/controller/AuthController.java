@@ -101,27 +101,17 @@ public class AuthController {
                 .body(new AuthResponse(access,refreshRaw));
     }
 
-    // ✅ Artık body yok. Refresh cookie'den okunacak.
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(
-            HttpServletRequest request,
-            @RequestBody(required = false) RefreshRequest body
-    ) {
+    public ResponseEntity<AuthResponse> refresh(HttpServletRequest request) {
         String refreshRaw = null;
 
-        // 1) Cookie’den al (WEB)
         if (request.getCookies() != null) {
             for (var c : request.getCookies()) {
-                if ("refresh_token".equals(c.getName())) {
+                if (REFRESH_COOKIE.equals(c.getName())) {
                     refreshRaw = c.getValue();
                     break;
                 }
             }
-        }
-
-        // 2) Body’den al (MOBIL)
-        if ((refreshRaw == null || refreshRaw.isBlank()) && body != null) {
-            refreshRaw = body.refreshToken();
         }
 
         if (refreshRaw == null || refreshRaw.isBlank()) {
@@ -137,26 +127,18 @@ public class AuthController {
 
         String newAccess = jwtService.generateAccessToken(user.getId(), user.getEmail());
 
-        // ✅ rotation
+        // rotation
         String newRefreshRaw = jwtService.generateRefreshToken();
         user.setRefreshTokenHash(jwtService.sha256(newRefreshRaw));
         user.setRefreshTokenExpiresAt(jwtService.refreshExpiryFromNow());
         userService.save(user);
 
-        // WEB: cookie set
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", newRefreshRaw)
-                .httpOnly(true)
-                .secure(false)      // prod’da true
-                .sameSite("Lax")    // prod’da None
-                .path("/")
-                .maxAge(Duration.ofDays(7))
-                .build();
-
-        // MOBIL: body’de refreshToken döndür (mobil yeni refresh’i saklayacak)
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie(newRefreshRaw).toString())
                 .body(new AuthResponse(newAccess, newRefreshRaw));
     }
+
+
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
