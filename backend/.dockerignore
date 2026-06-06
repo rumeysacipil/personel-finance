@@ -1,0 +1,10 @@
+target/
+target (2)/
+.idea/
+.git/
+.vscode/
+*.iml
+*.iws
+*.ipr
+uploads/
+.mvn/wrapper/maven-wrapper.jar
