@@ -1,0 +1,33 @@
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Maven
+target/
+target (2)/
+.mvn/wrapper/maven-wrapper.jar
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# App specific
+uploads/
+backend/uploads/
+local_data/
+*.db
+*.sqlite
+
+# OS generated
+.DS_Store
+Thumbs.db

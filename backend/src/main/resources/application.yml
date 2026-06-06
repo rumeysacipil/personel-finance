@@ -64,7 +64,7 @@ app:
     metals-provider: goldpricez
     goldpricez:
       base-url: "https://goldpricez.com"
-      api-key: "9cff6b622de345eca78691a8d969f2a29cff6b62"
+      api-key: ${GOLDPRICEZ_API_KEY:YOUR_API_KEY_HERE}
       path: "/api/rates/currency/usd/measure/gram/metal/all"
     fx-url-template: "https://api.frankfurter.app/latest?from=%s&to=TRY"
     timeout: 5s
