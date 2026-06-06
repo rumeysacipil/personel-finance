@@ -11,6 +11,12 @@ A comprehensive, full-stack personal finance management application designed to 
 - **Live Market Rates:** Real-time integration with external APIs to display current gold prices and foreign exchange rates (USD, EUR, GBP to TRY).
 - **Export Data:** Download your financial reports in PDF or Excel formats.
 
+## 📸 Screenshots
+
+| Dashboard (Overview) | Financial Reports |
+| :---: | :---: |
+| ![Dashboard](docs/dashboard.png) | ![Reports](docs/reports.png) |
+
 ## 🛠️ Technology Stack
 
 ### Backend
