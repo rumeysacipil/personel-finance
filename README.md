@@ -84,5 +84,4 @@ The frontend application will start on `http://localhost:5173`.
 - `/frontend`: React application and Nginx server configuration.
 - `docker-compose.yml`: Multi-container orchestration.
 
-## 📝 Contact
-Developed by Rümeysa Çipil.
+
