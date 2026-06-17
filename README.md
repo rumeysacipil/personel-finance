@@ -13,11 +13,7 @@ A comprehensive, full-stack personal finance management application designed to 
 
 ## 📸 Screenshots
 
-| Dashboard (Overview) | Transactions |
-| :---: | :---: |
-| ![Dashboard](docs/dashboard.png) | ![Transactions](docs/transactions.png) |
-| **Budgets** | **Financial Reports** |
-| ![Budgets](docs/budgets.png) | ![Reports](docs/reports.png) |
+-**You can find the latest screenshots and visual demonstrations of the application interface inside the assets/ folder.
 
 ## 🛠️ Technology Stack
 
